@@ -1,0 +1,15 @@
+name: GolfMinigame
+version: '${project.version}'
+main: com.chilight.golf.Main
+api-version: 1.17
+commands:
+  minigolf:
+    description: Mini golf
+    default: true
+    usage: "Usage: /minigolf [info|reload]"
+    aliases: [golf]
+
+permissions:
+  minigolf.reload:
+    default: op
+    description: Allows you to reload the config
