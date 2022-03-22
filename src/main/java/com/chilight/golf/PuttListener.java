@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import com.chilight.golf.events.GameFinishEvent;
+import com.chilight.golf.events.GolfGameFinishEvent;
 import com.chilight.golf.events.PlayerHitBallEvent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -92,6 +94,7 @@ public class PuttListener implements Listener
                         // Are we hitting or picking up the golf ball?
                         if (act == Action.LEFT_CLICK_AIR || act == Action.LEFT_CLICK_BLOCK)
                         {
+                            Bukkit.broadcastMessage("vurdu");
                             PlayerHitBallEvent event1 = new PlayerHitBallEvent(ply, ent);
                             Bukkit.getPluginManager().callEvent(event1);
                             // Hit golf ball
@@ -121,7 +124,6 @@ public class PuttListener implements Listener
                                 c.set(plugin.xKey, PersistentDataType.DOUBLE, lastPos.getX());
                                 c.set(plugin.yKey, PersistentDataType.DOUBLE, lastPos.getY());
                                 c.set(plugin.zKey, PersistentDataType.DOUBLE, lastPos.getZ());
-
                                 // Add to map
                                 plugin.golfBalls.add((Snowball) ent);
                                 ent.setTicksLived(1);
@@ -132,12 +134,6 @@ public class PuttListener implements Listener
                                 }
                                 world.playSound(ent.getLocation(), Sound.BLOCK_METAL_HIT, crit ? 1f : sneak ? 0.5f : 0.75f, 1.25f);
                             }
-                        }
-                        else if (ent.isValid())
-                        {
-                            // Drop golf ball
-                            ent.remove();
-                            world.dropItem(ent.getLocation(), plugin.golfBall());
                         }
                     }
                 }
@@ -185,9 +181,9 @@ public class PuttListener implements Listener
         }
     }
 
-    public static void putBall(Player ply){
+    public static void putBall(Player ply, Location l){
         // Get spawn location
-        Location loc = ply.getLocation().add(0, 0.1, 0);
+        Location loc = l.clone();
 
         World world = ply.getWorld();
 
@@ -212,15 +208,35 @@ public class PuttListener implements Listener
     public void onShootBall(PlayerHitBallEvent event){
         GolfGame golfGame = Methods.getGolfGameFromPlayer(event.getPlayer());
         if(golfGame == null){
-            return;
-        }
-        if(!golfGame.isInTurn(event.getPlayer())) { event.setCancelled(true); return; }
-        PersistentDataContainer dataContainer = event.getBall().getPersistentDataContainer();
-        if(dataContainer.get(plugin.player, PersistentDataType.STRING).equalsIgnoreCase(event.getPlayer().getUniqueId().toString())){
             event.setCancelled(true);
             return;
         }
+        if(!golfGame.isInTurn(event.getPlayer())) {
+            event.setCancelled(true);
+            return;
+        }
+        PersistentDataContainer dataContainer = event.getBall().getPersistentDataContainer();
+        /*if(!dataContainer.get(plugin.player, PersistentDataType.STRING).equalsIgnoreCase(event.getPlayer().getUniqueId().toString())){
+            event.setCancelled(true);
+            Bukkit.broadcastMessage("5");
+            return;
+        }*/
         golfGame.changeTurn();
+    }
+
+    @EventHandler
+    public void onGolfGame(GolfGameFinishEvent event){
+        GolfGame game = event.getGolfGame();
+        game.finish(event.getPlayer());
+        if(game.isAllPlayersFinished()){
+            GameFinishEvent event1 = new GameFinishEvent(game);
+            Bukkit.getPluginManager().callEvent(event1);
+        }
+    }
+
+    @EventHandler
+    public void onGameFinish(GameFinishEvent event){
+        Bukkit.broadcastMessage("GAME HAS FINISHED!");
     }
 
 	/*@EventHandler

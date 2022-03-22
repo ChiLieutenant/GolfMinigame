@@ -2,6 +2,7 @@ package com.chilight.golf;
 import java.util.*;
 import java.util.Map.Entry;
 
+import com.chilight.golf.events.GolfGameFinishEvent;
 import com.chilight.golf.events.PlayerScoreEvent;
 import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
@@ -11,6 +12,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.attribute.AttributeModifier.Operation;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.Slab;
 import org.bukkit.entity.*;
@@ -182,9 +184,6 @@ public class Main extends JavaPlugin
                             // Spawn firework
                             ParticleEffect.FIREWORKS_SPARK.display(ball.getLocation(), 1);
 
-                            // Drop golf ball
-                            ball.getWorld().dropItem(ball.getLocation(), golfBall);
-
                             // Send message
                             for (Entry<UUID, Snowball> entry : lastPlayerBall.entrySet())
                             {
@@ -196,7 +195,13 @@ public class Main extends JavaPlugin
                                     Player ply = Bukkit.getPlayer(entry.getKey());
 
                                     String msg = StringUtils.replaceEach(scoreMsg, tokens, new String[] { ply.getName(), Integer.toString(par) });
-
+                                    if(block.getRelative(BlockFace.DOWN).getType() == Material.GOLD_BLOCK){
+                                        GolfGameFinishEvent event = new GolfGameFinishEvent(ply, par, Methods.getGolfGameFromPlayer(ply));
+                                        Bukkit.getPluginManager().callEvent(event);
+                                    }else{
+                                        Block bl = ball.getLocation().add(vel.clone().normalize().multiply(1.3)).getBlock();
+                                        PuttListener.putBall(ply, bl.getLocation().add(0.5, 1, 0.5));
+                                    }
                                     PlayerScoreEvent event = new PlayerScoreEvent(ply, par);
                                     Bukkit.getPluginManager().callEvent(event);
                                     break;

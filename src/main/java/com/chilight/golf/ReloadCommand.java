@@ -61,13 +61,22 @@ public class ReloadCommand implements CommandExecutor
                 Methods.getParty(player).removePlayer(removed.getName());
                 return true;
             }
+            else if(args[1].equalsIgnoreCase("accept")){
+                for(InviteHandler handler : Main.getInvites()){
+                    if(handler.getInvited().equals(player)){
+                        handler.doInvite();
+                        return true;
+                    }
+                }
+                player.sendMessage(ChatColor.RED + "You don't have any party request.");
+                return true;
+            }
             else if (args[1].equalsIgnoreCase("start")) {
                 if(!Methods.isPlayerInParty(player)) { player.sendMessage(ChatColor.RED + "You are not in a party!"); return true; }
                 if(Methods.getGolfGameFromPlayer(player) != null) { player.sendMessage(ChatColor.RED + "Your game is already started!"); return true; }
                 if(!Methods.getParty(player).isOwner(player)) { player.sendMessage(ChatColor.RED + "You are not the owner of the party!"); return true; }
 
-                GolfGame game = new GolfGame();
-                game.setParty(Methods.getParty(player));
+                GolfGame game = new GolfGame(Methods.getParty(player));
                 game.start();
                 return true;
             }
