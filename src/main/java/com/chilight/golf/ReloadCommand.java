@@ -39,6 +39,12 @@ public class ReloadCommand implements CommandExecutor
                 Methods.getParty(player).deleteParty();
                 return true;
             }
+            else if (args[1].equalsIgnoreCase("leave")) {
+                if(!Methods.isPlayerInParty(player)) { player.sendMessage(ChatColor.RED + "You are not in a party!"); return true; }
+
+                Methods.getParty(player).removePlayer(player.getName());
+                return true;
+            }
             else if (args[1].equalsIgnoreCase("invite")) {
                 if(args.length == 2) { return false; }
                 Player invited = Bukkit.getPlayer(args[2]);
