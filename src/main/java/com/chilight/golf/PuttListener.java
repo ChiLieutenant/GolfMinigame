@@ -4,11 +4,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -74,9 +70,9 @@ public class PuttListener implements Listener
                 if (ent instanceof Snowball && c.has(plugin.parKey, PersistentDataType.INTEGER))
                 {
                     // Is golf ball in player's view?
-                    Vector vec = ent.getLocation().toVector().subtract(loc);
+                    event.setCancelled(true);
 
-                    if (dir.angle(vec) < 0.15f)
+                    if (ply.hasLineOfSight(ent))
                     {
                         // Are we allowed to hit this ball?
                         boolean skip = false;

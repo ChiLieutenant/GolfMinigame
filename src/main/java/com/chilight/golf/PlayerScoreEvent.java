@@ -1,5 +1,6 @@
 package com.chilight.golf;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -13,6 +14,9 @@ public class PlayerScoreEvent extends Event {
     public PlayerScoreEvent(Player player, int par){
         this.par = par;
         this.player = player;
+
+        Bukkit.broadcastMessage("Score atıldı");
+
     }
 
     public Player getPlayer() {

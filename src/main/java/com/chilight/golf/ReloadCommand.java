@@ -4,12 +4,9 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.md_5.bungee.api.ChatColor;
-
-import java.util.Arrays;
 
 public class ReloadCommand implements CommandExecutor
 {
@@ -22,6 +19,18 @@ public class ReloadCommand implements CommandExecutor
         {
             return false;
         }
+        // GOLF PARTY COMMANDS
+        else if(args[0].equalsIgnoreCase("party")) {
+            Player player = (Player) sender;
+            if (args.length == 1) return false;
+            else if (args[1].equalsIgnoreCase("create")) {
+
+            }
+            else if (args[1].equalsIgnoreCase("disband")) {
+
+            }
+        }
+       // ---------------
         else if(args[0].equalsIgnoreCase("items")) {
             Player player = (Player) sender;
             player.getInventory().addItem(Main.getIron(), Main.getPutter(), Main.getWedge(), Main.getWhistle(), Main.golfBall());
@@ -54,5 +63,6 @@ public class ReloadCommand implements CommandExecutor
         {
             return false;
         }
+        return false;
     }
 }

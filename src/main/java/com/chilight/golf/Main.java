@@ -1,13 +1,8 @@
 package com.chilight.golf;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.UUID;
 
+import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
 import org.bukkit.FireworkEffect.Type;
@@ -21,11 +16,8 @@ import org.bukkit.entity.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ShapedRecipe;
-import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -34,6 +26,11 @@ import net.md_5.bungee.api.ChatColor;
 
 public class Main extends JavaPlugin
 {
+
+    @Getter private static Main instance;
+    @Getter private static ArrayList<InviteHandler> invites      = new ArrayList<>();
+    @Getter private static ArrayList<PartyHandler> parties       = new ArrayList<>();
+    @Getter private static ArrayList<GolfGame> games             = new ArrayList<>();
 
     // NamespacedKeys
     public final NamespacedKey ballKey = new NamespacedKey(this, "golf_ball");
@@ -74,6 +71,9 @@ public class Main extends JavaPlugin
     @Override
     public void onEnable()
     {
+        // Instance
+        instance = this;
+
         // Config
         saveDefaultConfig();
         reload();
