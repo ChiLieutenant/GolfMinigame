@@ -13,6 +13,7 @@ public class GolfGame {
     @Getter @Setter private PartyHandler party;
     @Getter @Setter private int turn;
     @Getter public static List<GolfGame> games = new ArrayList<>();
+    @Getter private boolean isStarted;
 
     public void GolfGame(PartyHandler party) {
         setParty(party);
@@ -34,6 +35,7 @@ public class GolfGame {
             PuttListener.putBall(p);
         }
         games.add(this);
+        isStarted = true;
     }
 
     public void end() {

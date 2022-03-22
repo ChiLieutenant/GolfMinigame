@@ -211,13 +211,16 @@ public class PuttListener implements Listener
     @EventHandler
     public void onShootBall(PlayerHitBallEvent event){
         GolfGame golfGame = Methods.getGolfGameFromPlayer(event.getPlayer());
-        if(golfGame != null){
-            if(!golfGame.isInTurn(event.getPlayer())) event.setCancelled(true);
+        if(golfGame == null){
+            return;
         }
+        if(!golfGame.isInTurn(event.getPlayer())) { event.setCancelled(true); return; }
         PersistentDataContainer dataContainer = event.getBall().getPersistentDataContainer();
         if(dataContainer.get(plugin.player, PersistentDataType.STRING).equalsIgnoreCase(event.getPlayer().getUniqueId().toString())){
             event.setCancelled(true);
+            return;
         }
+        golfGame.changeTurn();
     }
 
 	/*@EventHandler

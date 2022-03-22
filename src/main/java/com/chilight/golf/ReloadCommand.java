@@ -1,5 +1,6 @@
 package com.chilight.golf;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -24,11 +25,54 @@ public class ReloadCommand implements CommandExecutor
             Player player = (Player) sender;
             if (args.length == 1) return false;
             else if (args[1].equalsIgnoreCase("create")) {
+                if(Methods.isPlayerInParty(player)) { player.sendMessage(ChatColor.RED + "You are already in a party!"); return true; }
 
+                PartyHandler party = new PartyHandler();
+                party.setOwner(player);
+                party.create();
+                return true;
             }
             else if (args[1].equalsIgnoreCase("disband")) {
+                if(!Methods.isPlayerInParty(player)) { player.sendMessage(ChatColor.RED + "You are not in a party!"); return true; }
+                if(!Methods.getParty(player).isOwner(player)) { player.sendMessage(ChatColor.RED + "You are not the owner of the party!"); return true; }
 
+                Methods.getParty(player).deleteParty();
+                return true;
             }
+            else if (args[1].equalsIgnoreCase("invite")) {
+                if(args.length == 2) { return false; }
+                Player invited = Bukkit.getPlayer(args[2]);
+                if(!Methods.isPlayerInParty(player)) { player.sendMessage(ChatColor.RED + "You are not in a party!"); return true; }
+                if(Methods.getGolfGameFromPlayer(player) != null) { player.sendMessage(ChatColor.RED + "Your game is already started!"); return true; }
+                if(!Methods.getParty(player).isOwner(player)) { player.sendMessage(ChatColor.RED + "You are not the owner of the party!"); return true; }
+                if(invited == null) { player.sendMessage(ChatColor.RED + "Given player is not online."); return true; }
+
+                Methods.getParty(player).invitePlayer(invited.getName());
+                return true;
+            }
+            else if (args[1].equalsIgnoreCase("remove")) {
+                if(args.length == 2) { return false; }
+                Player removed = Bukkit.getPlayer(args[2]);
+                if(!Methods.isPlayerInParty(player)) { player.sendMessage(ChatColor.RED + "You are not in a party!"); return true; }
+                if(Methods.getGolfGameFromPlayer(player) != null) { player.sendMessage(ChatColor.RED + "Your game is already started!"); return true; }
+                if(!Methods.getParty(player).isOwner(player)) { player.sendMessage(ChatColor.RED + "You are not the owner of the party!"); return true; }
+                if(removed == null) { player.sendMessage(ChatColor.RED + "Given player is not online."); return true; }
+
+                Methods.getParty(player).removePlayer(removed.getName());
+                return true;
+            }
+            else if (args[1].equalsIgnoreCase("start")) {
+                if(!Methods.isPlayerInParty(player)) { player.sendMessage(ChatColor.RED + "You are not in a party!"); return true; }
+                if(Methods.getGolfGameFromPlayer(player) != null) { player.sendMessage(ChatColor.RED + "Your game is already started!"); return true; }
+                if(!Methods.getParty(player).isOwner(player)) { player.sendMessage(ChatColor.RED + "You are not the owner of the party!"); return true; }
+
+                GolfGame game = new GolfGame();
+                game.setParty(Methods.getParty(player));
+                game.start();
+                return true;
+            }
+
+
         }
        // ---------------
         else if(args[0].equalsIgnoreCase("items")) {
