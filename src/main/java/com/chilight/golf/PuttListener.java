@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import com.chilight.golf.events.PlayerHitBallEvent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -23,7 +24,7 @@ import org.bukkit.util.Vector;
 
 public class PuttListener implements Listener
 {
-    private final Main plugin = JavaPlugin.getPlugin(Main.class);
+    private static final Main plugin = JavaPlugin.getPlugin(Main.class);
 
     @EventHandler
     public void onPutt(PlayerInteractEvent event)
@@ -91,48 +92,46 @@ public class PuttListener implements Listener
                         // Are we hitting or picking up the golf ball?
                         if (act == Action.LEFT_CLICK_AIR || act == Action.LEFT_CLICK_BLOCK)
                         {
+                            PlayerHitBallEvent event1 = new PlayerHitBallEvent(ply, ent);
+                            Bukkit.getPluginManager().callEvent(event1);
                             // Hit golf ball
-                            dir.setY(0).normalize();
+                            if(!event1.isCancelled()) {
+                                dir.setY(0).normalize();
 
-                            boolean sneak = ply.isSneaking();
-                            boolean crit = ply.getVelocity().getY() < -0.08;
-                            if (iron)
-                            {
-                                dir.multiply(crit ? 1 : sneak ? 0.6666 : 0.8333);
+                                boolean sneak = ply.isSneaking();
+                                boolean crit = ply.getVelocity().getY() < -0.08;
+                                if (iron) {
+                                    dir.multiply(crit ? 1 : sneak ? 0.6666 : 0.8333);
+                                } else if (putter) {
+                                    dir.multiply(crit ? 0.5 : sneak ? 0.1666 : 0.3333);
+                                } else if (wedge) {
+                                    dir.multiply(crit ? 0 : sneak ? 0.125 : 0.25);
+                                    dir.setY(0.15);
+                                }
+
+                                ent.setVelocity(dir);
+
+                                // Update par
+                                int par = c.get(plugin.parKey, PersistentDataType.INTEGER) + 1;
+                                c.set(plugin.parKey, PersistentDataType.INTEGER, par);
+                                ent.setCustomName("Par " + par);
+
+                                // Update last pos
+                                Location lastPos = ent.getLocation();
+                                c.set(plugin.xKey, PersistentDataType.DOUBLE, lastPos.getX());
+                                c.set(plugin.yKey, PersistentDataType.DOUBLE, lastPos.getY());
+                                c.set(plugin.zKey, PersistentDataType.DOUBLE, lastPos.getZ());
+
+                                // Add to map
+                                plugin.golfBalls.add((Snowball) ent);
+                                ent.setTicksLived(1);
+
+                                // Effects
+                                if (crit) {
+                                    world.spawnParticle(Particle.CRIT, ent.getLocation(), 15, 0, 0, 0, 0.25);
+                                }
+                                world.playSound(ent.getLocation(), Sound.BLOCK_METAL_HIT, crit ? 1f : sneak ? 0.5f : 0.75f, 1.25f);
                             }
-                            else if (putter)
-                            {
-                                dir.multiply(crit ? 0.5 : sneak ? 0.1666 : 0.3333);
-                            }
-                            else if (wedge)
-                            {
-                                dir.multiply(crit ? 0 : sneak ? 0.125 : 0.25);
-                                dir.setY(0.15);
-                            }
-
-                            ent.setVelocity(dir);
-
-                            // Update par
-                            int par = c.get(plugin.parKey, PersistentDataType.INTEGER) + 1;
-                            c.set(plugin.parKey, PersistentDataType.INTEGER, par);
-                            ent.setCustomName("Par " + par);
-
-                            // Update last pos
-                            Location lastPos = ent.getLocation();
-                            c.set(plugin.xKey, PersistentDataType.DOUBLE, lastPos.getX());
-                            c.set(plugin.yKey, PersistentDataType.DOUBLE, lastPos.getY());
-                            c.set(plugin.zKey, PersistentDataType.DOUBLE, lastPos.getZ());
-
-                            // Add to map
-                            plugin.golfBalls.add((Snowball) ent);
-                            ent.setTicksLived(1);
-
-                            // Effects
-                            if (crit)
-                            {
-                                world.spawnParticle(Particle.CRIT, ent.getLocation(), 15, 0, 0, 0, 0.25);
-                            }
-                            world.playSound(ent.getLocation(), Sound.BLOCK_METAL_HIT, crit ? 1f : sneak ? 0.5f : 0.75f, 1.25f);
                         }
                         else if (ent.isValid())
                         {
@@ -152,38 +151,7 @@ public class PuttListener implements Listener
             // Is player placing golf ball?
             if (act == Action.RIGHT_CLICK_BLOCK)
             {
-                // Get spawn location
-                Location loc;
-                if (plugin.isBottomSlab(block))
-                {
-                    loc = block.getLocation().add(0.5, 0.5 + plugin.floorOffset, 0.5);
-                }
-                else
-                {
-                    loc = block.getLocation().add(0.5, 1 + plugin.floorOffset, 0.5);
-                }
 
-                // Spawn golf ball and set data
-                Snowball ball = (Snowball) world.spawnEntity(loc, EntityType.SNOWBALL);
-                ball.setGravity(false);
-                PersistentDataContainer c = ball.getPersistentDataContainer();
-                c.set(plugin.xKey, PersistentDataType.DOUBLE, loc.getX());
-                c.set(plugin.yKey, PersistentDataType.DOUBLE, loc.getY());
-                c.set(plugin.zKey, PersistentDataType.DOUBLE, loc.getZ());
-                c.set(plugin.parKey, PersistentDataType.INTEGER, 0);
-                ball.setCustomName("Par 0");
-                ball.setCustomNameVisible(true);
-                plugin.golfBalls.add(ball);
-
-                // Remove golf ball from inventory
-                if (ply.getGameMode() != GameMode.CREATIVE)
-                {
-                    ItemStack itemInHand = event.getItem();
-                    itemInHand.setAmount(itemInHand.getAmount() - 1);
-                }
-
-                // Add last player ball
-                plugin.lastPlayerBall.put(ply.getUniqueId(), ball);
             }
         }
         else if (ShortUtils.hasKey(meta, plugin.whistleKey))
@@ -217,7 +185,40 @@ public class PuttListener implements Listener
         }
     }
 
+    public static void putBall(Player ply){
+        // Get spawn location
+        Location loc = ply.getLocation().add(0, 0.1, 0);
 
+        World world = ply.getWorld();
+
+        // Spawn golf ball and set data
+        Snowball ball = (Snowball) world.spawnEntity(loc, EntityType.SNOWBALL);
+        ball.setGravity(false);
+        PersistentDataContainer c = ball.getPersistentDataContainer();
+        c.set(plugin.xKey, PersistentDataType.DOUBLE, loc.getX());
+        c.set(plugin.yKey, PersistentDataType.DOUBLE, loc.getY());
+        c.set(plugin.zKey, PersistentDataType.DOUBLE, loc.getZ());
+        c.set(plugin.parKey, PersistentDataType.INTEGER, 0);
+        c.set(plugin.player, PersistentDataType.STRING, ply.getUniqueId().toString());
+        ball.setCustomName("Par 0");
+        ball.setCustomNameVisible(true);
+        plugin.golfBalls.add(ball);
+
+        // Add last player ball
+        plugin.lastPlayerBall.put(ply.getUniqueId(), ball);
+    }
+
+    @EventHandler
+    public void onShootBall(PlayerHitBallEvent event){
+        GolfGame golfGame = Methods.getGolfGameFromPlayer(event.getPlayer());
+        if(golfGame != null){
+            if(!golfGame.isInTurn(event.getPlayer())) event.setCancelled(true);
+        }
+        PersistentDataContainer dataContainer = event.getBall().getPersistentDataContainer();
+        if(dataContainer.get(plugin.player, PersistentDataType.STRING).equalsIgnoreCase(event.getPlayer().getUniqueId().toString())){
+            event.setCancelled(true);
+        }
+    }
 
 	/*@EventHandler
 	private void onDispense(BlockDispenseEvent event)

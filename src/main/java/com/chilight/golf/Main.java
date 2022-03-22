@@ -2,6 +2,7 @@ package com.chilight.golf;
 import java.util.*;
 import java.util.Map.Entry;
 
+import com.chilight.golf.events.PlayerScoreEvent;
 import lombok.Getter;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
@@ -43,6 +44,7 @@ public class Main extends JavaPlugin
     public final NamespacedKey xKey = new NamespacedKey(this, "x");
     public final NamespacedKey yKey = new NamespacedKey(this, "y");
     public final NamespacedKey zKey = new NamespacedKey(this, "z");
+    public final NamespacedKey player = new NamespacedKey(this, "player");
 
     // Stuff
     private final AttributeModifier noDamage = new AttributeModifier(UUID.randomUUID(), "generic.attackDamage", -10, Operation.ADD_NUMBER, EquipmentSlot.HAND);

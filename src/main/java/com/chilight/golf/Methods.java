@@ -56,4 +56,15 @@ public class Methods {
     public static String arrayToString(String[] list){
         return String.join(" ", list);
     }
+
+    public static GolfGame getGolfGameFromPlayer(Player player){
+        GolfGame golfGame = null;
+        for(GolfGame golfGame1 : GolfGame.getGames()){
+            if(golfGame1.getParty().getPlayers().contains(player)){
+                golfGame = golfGame1;
+            }
+        }
+        return golfGame;
+    }
+
 }
