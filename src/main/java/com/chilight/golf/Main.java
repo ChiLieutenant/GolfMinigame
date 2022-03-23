@@ -34,6 +34,7 @@ public class Main extends JavaPlugin
     @Getter private static ArrayList<InviteHandler> invites      = new ArrayList<>();
     @Getter private static ArrayList<PartyHandler> parties       = new ArrayList<>();
     @Getter private static ArrayList<GolfGame> games             = new ArrayList<>();
+    @Getter public static List<Player> finished = new ArrayList<>();
 
     // NamespacedKeys
     public final NamespacedKey ballKey = new NamespacedKey(this, "golf_ball");
@@ -209,8 +210,8 @@ public class Main extends JavaPlugin
                             }
 
                             // Remove ball
-                            ball.remove();
                             i.remove();
+                            ball.remove();
                             break;
 
                         case SOUL_SAND:

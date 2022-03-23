@@ -20,6 +20,21 @@ public class ReloadCommand implements CommandExecutor
         {
             return false;
         }
+        // GOLF COURT COMMANDS
+        else if(args[0].equalsIgnoreCase("court")) {
+            Player player = (Player) sender;
+            if(args.length == 3){
+                if(args[1].equalsIgnoreCase("create")){
+                    CourtHandler.createCourt(player, args[2]);
+                }
+                if(args[1].equalsIgnoreCase("remove")){
+                    CourtHandler.removeCourt(player, args[2]);
+                }
+                if(args[1].equalsIgnoreCase("location")){
+                    CourtHandler.setLocation(player, args[2]);
+                }
+            }
+        }
         // GOLF PARTY COMMANDS
         else if(args[0].equalsIgnoreCase("party")) {
             Player player = (Player) sender;
@@ -71,6 +86,7 @@ public class ReloadCommand implements CommandExecutor
                 for(InviteHandler handler : Main.getInvites()){
                     if(handler.getInvited().equals(player)){
                         handler.doInvite();
+                        Main.getInvites().remove(handler);
                         return true;
                     }
                 }
@@ -81,8 +97,9 @@ public class ReloadCommand implements CommandExecutor
                 if(!Methods.isPlayerInParty(player)) { player.sendMessage(ChatColor.RED + "You are not in a party!"); return true; }
                 if(Methods.getGolfGameFromPlayer(player) != null) { player.sendMessage(ChatColor.RED + "Your game is already started!"); return true; }
                 if(!Methods.getParty(player).isOwner(player)) { player.sendMessage(ChatColor.RED + "You are not the owner of the party!"); return true; }
-
+                if(CourtHandler.getAvailableCourt() == null) { player.sendMessage(ChatColor.RED + "There is no available court at the moment. Please try again later."); return true;}
                 GolfGame game = new GolfGame(Methods.getParty(player));
+                game.setCourt(CourtHandler.getAvailableCourt());
                 game.start();
                 return true;
             }

@@ -15,8 +15,6 @@ public class PlayerScoreEvent extends Event {
         this.par = par;
         this.player = player;
 
-        Bukkit.broadcastMessage("Score atıldı");
-
     }
 
     public Player getPlayer() {

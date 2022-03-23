@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.chilight.golf.events.GameFinishEvent;
 import com.chilight.golf.events.GolfGameFinishEvent;
 import com.chilight.golf.events.PlayerHitBallEvent;
+import com.chilight.golf.events.PlayerScoreEvent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -17,6 +18,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -94,7 +96,6 @@ public class PuttListener implements Listener
                         // Are we hitting or picking up the golf ball?
                         if (act == Action.LEFT_CLICK_AIR || act == Action.LEFT_CLICK_BLOCK)
                         {
-                            Bukkit.broadcastMessage("vurdu");
                             PlayerHitBallEvent event1 = new PlayerHitBallEvent(ply, ent);
                             Bukkit.getPluginManager().callEvent(event1);
                             // Hit golf ball
@@ -205,6 +206,11 @@ public class PuttListener implements Listener
     }
 
     @EventHandler
+    public void onScore(PlayerScoreEvent event){
+        Methods.addPar(event.getPlayer(), event.getPar());
+    }
+
+    @EventHandler
     public void onShootBall(PlayerHitBallEvent event){
         GolfGame golfGame = Methods.getGolfGameFromPlayer(event.getPlayer());
         if(golfGame == null){
@@ -236,8 +242,14 @@ public class PuttListener implements Listener
 
     @EventHandler
     public void onGameFinish(GameFinishEvent event){
-        Bukkit.broadcastMessage("GAME HAS FINISHED!");
+        event.getGolfGame().end();
     }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event){
+        Methods.loadData(event.getPlayer());
+    }
+
 
 	/*@EventHandler
 	private void onDispense(BlockDispenseEvent event)

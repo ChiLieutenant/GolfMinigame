@@ -1,9 +1,16 @@
 package com.chilight.golf;
 
+import fr.mrmicky.fastboard.FastBoard;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +23,8 @@ public class GolfGame {
     @Getter public static List<GolfGame> games = new ArrayList<>();
     @Getter private boolean isStarted;
     @Getter private HashMap<Player, Boolean> finished = new HashMap<>();
+    @Getter private List<FastBoard> boards = new ArrayList<>();
+    @Getter @Setter private String court;
 
     public GolfGame(PartyHandler party) {
         setParty(party);
@@ -23,9 +32,45 @@ public class GolfGame {
         this.isStarted = false;
     }
 
+    public List<String> getLine(){
+        List<String> line = new ArrayList<>();
+        for(Player p : party.getPlayers()){
+            line.add(ChatColor.DARK_AQUA + p.getName() + ": " + ChatColor.GRAY + Methods.getPar(p));
+        }
+        return line;
+    }
+
+    public void startScoreboard(){
+        for(Player p : getParty().getPlayers()){
+            FastBoard board = new FastBoard(p);
+            board.updateTitle("GolfGame");
+            board.updateLines(getLine());
+            boards.add(board);
+        }
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                if(!isStarted) {
+                    for(FastBoard board : boards){
+                        board.delete();
+                    }
+                    boards.clear();
+                    this.cancel();
+                    return;
+                }
+                for(FastBoard board : boards){
+                    board.updateLines(getLine());
+                }
+            }
+        }.runTaskTimer(Main.getInstance(), 0, 20);
+
+    }
+
     public List<Player> unFinishedPlayers(){
-        List<Player> players = party.getPlayers();
-        players.removeIf(pl -> isFinished(pl));
+        List<Player> players = new ArrayList<>();
+        for(Player p : getParty().getPlayers()){
+            if(!isFinished(p)) players.add(p);
+        }
         return players;
     }
 
@@ -48,6 +93,8 @@ public class GolfGame {
     }
 
     public boolean isInTurn(Player player){
+        if(turn > unFinishedPlayers().size() - 1) turn = unFinishedPlayers().size() - 1;
+        if(!unFinishedPlayers().contains(player)) return false;
         return unFinishedPlayers().get(turn).equals(player);
     }
 
@@ -58,15 +105,36 @@ public class GolfGame {
     }
 
     public void start() {
+        int i = 0;
         for(Player p : party.getPlayers()) {
+            i++;
+            p.teleport(Methods.getGolfLocation(CourtHandler.getCourtLocation(getCourt()), i));
             PuttListener.putBall(p, p.getLocation().add(0, 0.1, 0));
             p.getInventory().addItem(Main.getIron(), Main.getWedge(), Main.getPutter());
+            Methods.setPar(p, 0);
         }
+        unFinishedPlayers().get(0).sendMessage(ChatColor.GREEN + "It is your turn to shoot the ball.");
+        CourtHandler.setCourtAvailable(getCourt(), false);
+        startScoreboard();
         games.add(this);
         isStarted = true;
     }
 
     public void end() {
+        Player winner = party.getPlayers().get(0);
+        for(Player p : party.getPlayers()) {
+            p.teleport(p.getWorld().getSpawnLocation());
+            p.getInventory().clear();
+            if(Methods.getPar(p) < Methods.getPar(winner)){
+                winner = p;
+            }
+        }
+        for(Player p : party.getPlayers()) {
+            p.sendMessage(ChatColor.GRAY + winner.getName() + ChatColor.GREEN + " has won the game!");
+            Methods.setPar(p, 0);
+        }
+        CourtHandler.setCourtAvailable(getCourt(), true);
         games.remove(this);
+        isStarted = false;
     }
 }

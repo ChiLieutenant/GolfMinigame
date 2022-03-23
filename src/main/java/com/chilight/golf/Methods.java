@@ -1,8 +1,11 @@
 package com.chilight.golf;
 
+import de.leonhard.storage.Json;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.util.Vector;
 
 public class Methods {
     public static String replaceColorCode(String string){
@@ -65,6 +68,46 @@ public class Methods {
             }
         }
         return golfGame;
+    }
+
+    public static Json getPlayerData(){
+        return new Json("players", "plugins/GolfMinigame");
+    }
+
+    public static void loadData(Player player){
+        getPlayerData().set(player.getUniqueId() + ".par", 0);
+    }
+
+    public static int getPar(Player player){
+        return getPlayerData().getInt(player.getUniqueId() + ".par");
+    }
+
+    public static void setPar(Player player, int par){
+        getPlayerData().set(player.getUniqueId() + ".par", par);
+    }
+
+    public static void addPar(Player player, int par){
+        setPar(player, getPar(player) + par);
+    }
+
+    public static Location getRightSide(final Location location, final double distance) {
+        final float angle = location.getYaw() / 60;
+        return location.clone().subtract(new Vector(Math.cos(angle), 0, Math.sin(angle)).normalize().multiply(distance));
+    }
+
+    public static Location getLeftSide(final Location location, final double distance) {
+        final float angle = location.getYaw() / 60;
+        return location.clone().add(new Vector(Math.cos(angle), 0, Math.sin(angle)).normalize().multiply(distance));
+    }
+
+    public static Location getGolfLocation(Location mainLoc, int count){
+        Location loc = null;
+        if(count % 2 == 0){
+            loc = getLeftSide(mainLoc, count);
+        }else{
+            loc = getRightSide(mainLoc, count);
+        }
+        return loc;
     }
 
 }
