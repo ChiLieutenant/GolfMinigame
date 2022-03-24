@@ -110,4 +110,19 @@ public class Methods {
         return loc;
     }
 
+    public static boolean isPartyInGame(PartyHandler party){
+        for(GolfGame game : GolfGame.getGames()){
+            if(game.getParty().equals(party) && game.isStarted()) return true;
+        }
+        return false;
+    }
+
+    public static GolfGame getGameFromParty(PartyHandler party){
+        GolfGame golfGame = null;
+        for(GolfGame game : GolfGame.getGames()){
+            if(game.getParty().equals(party) && game.isStarted()) golfGame = game;
+        }
+        return golfGame;
+    }
+
 }

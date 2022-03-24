@@ -23,23 +23,6 @@ public class ProjectileListener implements Listener
     private final Main plugin = JavaPlugin.getPlugin(Main.class);
 
     @EventHandler
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (event.getDamager() instanceof Snowball) {
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
-    public void onProjectileHit1(ProjectileHitEvent event)
-    {
-        Entity ent = event.getEntity();
-        if (ent instanceof Snowball)
-        {
-            if(event.getHitEntity() != null) event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
     public void onProjectileHit(ProjectileHitEvent event)
     {
         Entity ent = event.getEntity();

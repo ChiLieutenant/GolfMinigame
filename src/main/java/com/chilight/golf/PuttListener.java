@@ -19,6 +19,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -250,6 +251,14 @@ public class PuttListener implements Listener
         Methods.loadData(event.getPlayer());
     }
 
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event){
+        Player player = event.getPlayer();
+        if(Methods.isPlayerInParty(player)){
+            PartyHandler party = Methods.getParty(player);
+            party.playerLeave(player);
+        }
+    }
 
 	/*@EventHandler
 	private void onDispense(BlockDispenseEvent event)

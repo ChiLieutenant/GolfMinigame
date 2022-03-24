@@ -91,9 +91,13 @@ public class PartyHandler {
             player.sendMessage(Methods.replaceColorCode(text));
         }
         setOwner(players.get(0));
+
     }
 
     public void deleteParty(){
+        if(Methods.isPartyInGame(this)){
+            Methods.getGameFromParty(this).end();
+        }
         Main.getParties().remove(this);
         if(players.size() == 0) return;
         for(Player player : players){

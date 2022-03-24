@@ -209,8 +209,8 @@ public class Main extends JavaPlugin
                             }
 
                             // Remove ball
-                            i.remove();
                             ball.remove();
+                            i.remove();
                             break;
 
                         case SOUL_SAND:
