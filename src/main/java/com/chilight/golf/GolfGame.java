@@ -34,8 +34,13 @@ public class GolfGame {
 
     public List<String> getLine(){
         List<String> line = new ArrayList<>();
+        line.add(ChatColor.translateAlternateColorCodes('&', "&r &r &r"));
+        line.add(ChatColor.translateAlternateColorCodes('&', "&e&lParty Owner:"));
+        line.add(ChatColor.translateAlternateColorCodes('&', "&r &r &e" + this.getParty().getOwner().getName()));
+        line.add(ChatColor.translateAlternateColorCodes('&', "&r &r &r"));
+        line.add(ChatColor.translateAlternateColorCodes('&', "&e&lScores:"));
         for(Player p : party.getPlayers()){
-            line.add(ChatColor.DARK_AQUA + p.getName() + ": " + ChatColor.GRAY + Methods.getPar(p));
+            line.add(ChatColor.translateAlternateColorCodes('&', "&r &r &e" + p.getName() + ": &7" + Methods.getPar(p) + " Par"));
         }
         return line;
     }
@@ -43,7 +48,7 @@ public class GolfGame {
     public void startScoreboard(){
         for(Player p : getParty().getPlayers()){
             FastBoard board = new FastBoard(p);
-            board.updateTitle("GolfGame");
+            board.updateTitle(ChatColor.translateAlternateColorCodes('&', "&2&lGOLF MINIGAME"));
             board.updateLines(getLine());
             boards.add(board);
         }
