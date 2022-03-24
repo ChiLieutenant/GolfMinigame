@@ -4,9 +4,6 @@ main: com.chilight.golf.Main
 api-version: 1.17
 commands:
   minigolf:
-    description: Mini golf
-    default: true
-    usage: "Usage: /minigolf [info|reload]"
     aliases: [golf]
 
 permissions:

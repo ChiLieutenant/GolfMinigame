@@ -1,6 +1,7 @@
 package com.chilight.golf;
 
 import org.bukkit.Bukkit;
+import org.bukkit.block.data.type.Bed;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -39,6 +40,19 @@ public class ReloadCommand implements CommandExecutor
         else if(args[0].equalsIgnoreCase("party")) {
             Player player = (Player) sender;
             if (args.length == 1) return false;
+            else if (args[1].equalsIgnoreCase("find")) {
+                if(Methods.isPlayerInParty(player)) { player.sendMessage(ChatColor.RED + "You are already in a party!"); return true; }
+                if(Main.getAvailableParties().isEmpty()){
+                    player.sendMessage(ChatColor.RED + "You have created a new party since there is no available parties at the moment.");
+                    PartyHandler party = new PartyHandler();
+                    party.setOwner(player);
+                    party.create();
+                    party.setPublic(true);
+                    return false;
+                }
+                PartyHandler partyHandler = Main.getAvailableParties().get(0);
+                partyHandler.addPlayer(player);
+            }
             else if (args[1].equalsIgnoreCase("create")) {
                 if(Methods.isPlayerInParty(player)) { player.sendMessage(ChatColor.RED + "You are already in a party!"); return true; }
 
@@ -52,6 +66,22 @@ public class ReloadCommand implements CommandExecutor
                 if(!Methods.getParty(player).isOwner(player)) { player.sendMessage(ChatColor.RED + "You are not the owner of the party!"); return true; }
 
                 Methods.getParty(player).deleteParty();
+                return true;
+            }
+            else if (args[1].equalsIgnoreCase("public")) {
+                if(!Methods.isPlayerInParty(player)) { player.sendMessage(ChatColor.RED + "You are not in a party!"); return true; }
+                if(!Methods.getParty(player).isOwner(player)) { player.sendMessage(ChatColor.RED + "You are not the owner of the party!"); return true; }
+
+                Methods.getParty(player).setPublic(true);
+                player.sendMessage(ChatColor.GREEN + "You have successfully switched your party status to public.");
+                return true;
+            }
+            else if (args[1].equalsIgnoreCase("private")) {
+                if(!Methods.isPlayerInParty(player)) { player.sendMessage(ChatColor.RED + "You are not in a party!"); return true; }
+                if(!Methods.getParty(player).isOwner(player)) { player.sendMessage(ChatColor.RED + "You are not the owner of the party!"); return true; }
+
+                Methods.getParty(player).setPublic(false);
+                player.sendMessage(ChatColor.GREEN + "You have successfully switched your party status to private.");
                 return true;
             }
             else if (args[1].equalsIgnoreCase("leave")) {

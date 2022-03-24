@@ -34,7 +34,6 @@ public class Main extends JavaPlugin
     @Getter private static ArrayList<InviteHandler> invites      = new ArrayList<>();
     @Getter private static ArrayList<PartyHandler> parties       = new ArrayList<>();
     @Getter private static ArrayList<GolfGame> games             = new ArrayList<>();
-    @Getter public static List<Player> finished = new ArrayList<>();
 
     // NamespacedKeys
     public final NamespacedKey ballKey = new NamespacedKey(this, "golf_ball");
@@ -196,6 +195,8 @@ public class Main extends JavaPlugin
                                     Player ply = Bukkit.getPlayer(entry.getKey());
 
                                     String msg = StringUtils.replaceEach(scoreMsg, tokens, new String[] { ply.getName(), Integer.toString(par) });
+                                    PlayerScoreEvent event1 = new PlayerScoreEvent(ply, par);
+                                    Bukkit.getPluginManager().callEvent(event1);
                                     if(block.getRelative(BlockFace.DOWN).getType() == Material.GOLD_BLOCK){
                                         GolfGameFinishEvent event = new GolfGameFinishEvent(ply, par, Methods.getGolfGameFromPlayer(ply));
                                         Bukkit.getPluginManager().callEvent(event);
@@ -203,8 +204,6 @@ public class Main extends JavaPlugin
                                         Block bl = ball.getLocation().add(vel.clone().normalize().multiply(1.3)).getBlock();
                                         PuttListener.putBall(ply, bl.getLocation().add(0.5, 1, 0.5));
                                     }
-                                    PlayerScoreEvent event = new PlayerScoreEvent(ply, par);
-                                    Bukkit.getPluginManager().callEvent(event);
                                     break;
                                 }
                             }
@@ -313,6 +312,14 @@ public class Main extends JavaPlugin
     {
         reloadConfig();
         scoreMsg = ChatColor.translateAlternateColorCodes('&', getConfig().getString("scoreMsg"));
+    }
+
+    public static List<PartyHandler> getAvailableParties(){
+        List<PartyHandler> parties = new ArrayList<>();
+        for(PartyHandler party : Main.getParties()){
+            if(party.isPublic() && party.getPlayers().size() < 4) parties.add(party);
+        }
+        return parties;
     }
 
     public static ItemStack getWhistle(){

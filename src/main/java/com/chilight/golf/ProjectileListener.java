@@ -11,6 +11,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -20,6 +21,23 @@ import org.bukkit.util.Vector;
 public class ProjectileListener implements Listener
 {
     private final Main plugin = JavaPlugin.getPlugin(Main.class);
+
+    @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (event.getDamager() instanceof Snowball) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onProjectileHit1(ProjectileHitEvent event)
+    {
+        Entity ent = event.getEntity();
+        if (ent instanceof Snowball)
+        {
+            if(event.getHitEntity() != null) event.setCancelled(true);
+        }
+    }
 
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event)

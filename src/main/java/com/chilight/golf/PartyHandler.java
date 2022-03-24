@@ -10,6 +10,7 @@ import java.util.ArrayList;
 public class PartyHandler {
     @Getter private ArrayList<Player> players = new ArrayList<>();
     @Getter @Setter private Player owner;
+    @Getter @Setter private boolean isPublic;
 
     public void invitePlayer(String playername){
         Player invited = Bukkit.getPlayerExact(playername);
